@@ -4,6 +4,20 @@ import sqlite3
 app = Flask(__name__) 
 
 conn = sqlite3.connect("data_input/chinook.db")
+songs = pd.read_sql_query('''SELECT t.name as Song, g.name as Genre, a.title as Album,
+ar.name as ArtistName, m.name as MediaTypes, t.unitprice as UnitPrice, t.Composer,
+i.CustomerId, c.FirstName, c.LastName, ii.Quantity,
+i.InvoiceDate,i.Billingcity as City,i.billingCountry as Country
+from tracks t
+left join playlist_track on playlist_track.trackid = t.name
+left join playlists p on playlist_track.playlistid = p.playlistid
+left join media_types m on m.mediatypeid = t.mediatypeid
+left join genres g on g.genreid = t.genreid
+left join albums a on a.albumid = t.albumid
+left join artists ar on ar.artistid = a.artistid
+left join invoice_items ii on ii.trackid = t.trackid
+left join invoices i on ii.invoiceid = i.invoiceid
+left join customers c on i.customerid = c.customerid''', conn)
 
 @app.route('/form', methods=['GET', 'POST']) #allow both GET and POST requests
 def form():
