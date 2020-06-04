@@ -19,6 +19,45 @@ left join invoice_items ii on ii.trackid = t.trackid
 left join invoices i on ii.invoiceid = i.invoiceid
 left join customers c on i.customerid = c.customerid''', conn)
 
+#Change data types
+songs[['Genre', 'ArtistName', 'MediaTypes', 'City', 'Country', 'Album']] = songs[['Genre', 'ArtistName', 'MediaTypes', 'City', 'Country', 'Album']].astype('category')
+
+#Fill NA
+songs["Composer"].fillna('Unknown',inplace=True)
+songs["Quantity"].fillna(0,inplace=True)
+
+#Drop the remaining duplicates and NA
+songs = songs.drop_duplicates()
+songs = songs.dropna(how = 'any')
+
+#Reset Index
+songs = songs.reset_index(drop = True)
+
+#Top 10 songs most bought by customers
+toptensongs = pd.crosstab(index = [songs.Song, songs.ArtistName],
+                  columns = 'freq',
+                  values = songs.Quantity,
+                  aggfunc = 'sum').sort_values('freq', ascending = False)
+top10songs = toptensongs.reset_index(level=['Song', 'ArtistName']).head(10)
+
+#Top 10 Artists
+toptenartists = toptensongs.stack().to_frame().groupby(['ArtistName']).sum().sort_values(0, ascending = False).head(10)
+top10artists = toptenartists.reset_index(level='ArtistName')
+
+#Top 10 Genres
+toptengenres = pd.crosstab(index = songs["Genre"],
+           columns = 'frequency',
+           values = songs.Quantity,
+           aggfunc = 'sum').sort_values('frequency', ascending = False).head(10)
+top10genres = toptengenres.reset_index(level='Genre')
+
+#Extract year from invoice date
+songs['Year'] = songs.InvoiceDate.dt.year
+
+#Catalogue
+catalogue = songs.loc[:, ('Song', 'Genre', 'Album', 'ArtistName', 'MediaTypes', 'UnitPrice')]
+
+
 @app.route('/form', methods=['GET', 'POST']) #allow both GET and POST requests
 def form():
     if request.method == 'POST':  # Hanya akan tampil setelah melakukan POST (submit) form
@@ -39,6 +78,8 @@ def form():
                   Favourite Song: <input type="text" name="song"><br>
                   <input type="submit" value="Submit"><br>
               </form>'''
+
+
 
 # mendapatkan keseluruhan data dari <data_name>
 @app.route('/data/get/<data_name>', methods=['GET']) 
