@@ -57,6 +57,8 @@ songs['Year'] = songs.InvoiceDate.dt.year
 #Catalogue
 catalogue = songs.loc[:, ('Song', 'Genre', 'Album', 'ArtistName', 'MediaTypes', 'UnitPrice')]
 
+sales = songs.copy()
+
 
 @app.route('/form', methods=['GET', 'POST']) #allow both GET and POST requests
 def form():
@@ -79,22 +81,128 @@ def form():
                   <input type="submit" value="Submit"><br>
               </form>'''
 
+@app.route("/docs")
+def documentation():
+    #<ol> is ordered list
+    #<li> is list
+    #<ul> is unordered list
+    return '''
+    <h1> Documentation of Endpoints: </h1>
+    <h2> Static Endpoints </h2>
+    <ol>
+        <li>
+            <p> /, method = POST </p>
+            <p> Base endpoint that is interactive and let's the user compute their name and favourite song. </p>
+        </li>
+        <li>
+            <p> /docs, method = GET </p>
+            <p> Documentation about the use of API. </p>
+        </li>
+        <li>
+            <p> /data/get/catalogue, method = GET </p>
+            <p> To show the whole list of songs. </p>
+        </li>
+        <li>
+            <p> /data/get/top10songs, method = GET </p>
+            <p> To show top 10 songs from the number of sales. </p>
+        </li>
+        <li>
+            <p> /data/get/top10artists, method = GET </p>
+            <p> To show top 10 artists from the number of sales. </p>
+        </li>
+        <li>
+        <p> /data/get/top10genres, method = GET </p>
+            <p> To show top 10 genres from the number of sales. </p>
+        </li>
+    </ol>
+    <h2> Dynamic Endpoint </h2>
+    <ol>
+        <li>
+            <p> /data/get/sales , method = GET </p>
+            <p> To show the whole data on sales </p>
+            <p> To filter: </p>
+            <ul style="list-style-type:disc;">
+                <li> city: to filter based on the city where the purchase of the songs are made, for example:
+                        /data/get/sales?city=Rome</li>
+                <li> country: to filter based on the country where the purchase of the songs are made, for example:
+                        /data/get/sales?country=Canada</li>
+                <li> genre: to filter based on the genre of the songs, for example:
+                        /data/get/sales?genre=Blues</li>
+                <li> artist: to filter based on the artists of the songs, for example:
+                        /data/get/sales?artist=U2</li>
+                <li> year: to filter based on the year when the purchase of the songs are made, for example:
+                        /data/get/sales?year=2014</li>
+                <li> col : to filter based on the columns you want, for example:
+                        /data/get/sales?col=[Song,Genre,Year,ArtistName,Album]</li>
+            </ul>
+            <p> To combine different combinations of the filters above, you can use &amp, for example:
+                    /data/get/sales?year=2011&genre=Reggae </p>
+        </li>
+    </ol>
+    '''
 
+@app.route('/data/get/catalogue', methods=['GET']) 
+def get_catalogue():
+    return (catalogue.to_json())
 
-# mendapatkan keseluruhan data dari <data_name>
-@app.route('/data/get/<data_name>', methods=['GET']) 
-def get_data(data_name): 
-    data = pd.read_csv('data/' + str(data_name))
-    return (data.to_json())
+@app.route('/data/get/top10songs', methods=['GET']) 
+def get_top10songs(): 
+    return (top10songs.to_json())
+
+@app.route('/data/get/top10artists', methods=['GET']) 
+def get_top10artists(): 
+    return (top10artists.to_json())
+
+@app.route('/data/get/top10genres', methods=['GET']) 
+def get_genres(): 
+    return (top10genres.to_json())
+
+@app.route('/data/get/sales', methods=['GET']) 
+def sales():
+    city = request.args.get('city')
+    country = request.args.get('country')
+    genre = request.args.get('genre')
+    artist = request.args.get('artist')
+    year = request.args.get('year')
+    col = request.args.get('col')
+
+    #tuple for name of column
+    column = []
+    #tuple for ==
+    equal = []
+    #tuple for condition specified in link
+    condition = []
+
+    if (city == None) & (country == None) & (genre == None) & (artist == None) & (year == None):
+        return (sales.to_json())
     
+    if city:
+        column.append('City')
+        equal.append('==')
+        condition.append(city)
 
-# mendapatkan data dengan filter nilai <value> pada kolom <column>
-@app.route('/data/get/equal/<data_name>/<column>/<value>', methods=['GET']) 
-def get_data_equal(data_name, column, value): 
-    data = pd.read_csv('data/' + str(data_name))
-    mask = data[column] == value
-    data = data[mask]
-    return (data.to_json())
+    if country:
+        column.append('Country')
+        equal.append('==')
+        condition.append(country)
+
+    if genre:
+        column.append('Genre')
+        equal.append('==')
+        condition.append(genre)
+
+    if artist:
+        column.append('ArtistName')
+        equal.append('==')
+        condition.append(artist)
+    
+    if year:
+        column.append('Year')
+        equal.append('==')
+        condition.append(int(year))
+        #To ensure that the year that is typed in is integer
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
