@@ -6,7 +6,7 @@ app = Flask(__name__)
 conn = sqlite3.connect("data/chinook.db")
 songs = pd.read_sql_query('''SELECT t.name as Song, g.name as Genre, a.title as Album,
 ar.name as ArtistName, m.name as MediaTypes, t.unitprice as UnitPrice, t.Composer,
-i.CustomerId, c.firstname|| ' ' ||c.lastname as customername, ii.Quantity,
+i.CustomerId, c.firstname|| ' ' ||c.lastname as CustomerName, ii.Quantity,
 i.InvoiceDate,i.Billingcity as City,i.billingCountry as Country, t.trackid
 from tracks t
 left join playlist_track on playlist_track.trackid = t.name
