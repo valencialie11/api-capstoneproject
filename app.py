@@ -3,11 +3,11 @@ import pandas as pd
 import sqlite3
 app = Flask(__name__) 
 
-conn = sqlite3.connect("data_input/chinook.db")
+conn = sqlite3.connect("data/chinook.db")
 songs = pd.read_sql_query('''SELECT t.name as Song, g.name as Genre, a.title as Album,
 ar.name as ArtistName, m.name as MediaTypes, t.unitprice as UnitPrice, t.Composer,
-i.CustomerId, c.FirstName, c.LastName, ii.Quantity,
-i.InvoiceDate,i.Billingcity as City,i.billingCountry as Country
+i.CustomerId, c.firstname|| ' ' ||c.lastname as customername, ii.Quantity,
+i.InvoiceDate,i.Billingcity as City,i.billingCountry as Country, t.trackid
 from tracks t
 left join playlist_track on playlist_track.trackid = t.name
 left join playlists p on playlist_track.playlistid = p.playlistid
@@ -17,7 +17,7 @@ left join albums a on a.albumid = t.albumid
 left join artists ar on ar.artistid = a.artistid
 left join invoice_items ii on ii.trackid = t.trackid
 left join invoices i on ii.invoiceid = i.invoiceid
-left join customers c on i.customerid = c.customerid''', conn)
+left join customers c on i.customerid = c.customerid''', conn, parse_dates='InvoiceDate')
 
 #Change data types
 songs[['Genre', 'ArtistName', 'MediaTypes', 'City', 'Country', 'Album']] = songs[['Genre', 'ArtistName', 'MediaTypes', 'City', 'Country', 'Album']].astype('category')
@@ -57,6 +57,15 @@ songs['Year'] = songs.InvoiceDate.dt.year
 #Catalogue
 catalogue = songs.loc[:, ('Song', 'Genre', 'Album', 'ArtistName', 'MediaTypes', 'UnitPrice')]
 
+songs.Quantity = songs.Quantity.astype('int')
+songs.CustomerId = songs.CustomerId.astype('int')
+
+songs.Year = songs.Year.apply(str)
+songs.UnitPrice = songs.UnitPrice.apply(str)
+songs.Quantity = songs.Quantity.apply(str)
+songs.CustomerId = songs.CustomerId.apply(str)
+songs.TrackId = songs.TrackId.apply(str)
+
 sales = songs.copy()
 
 
@@ -87,57 +96,51 @@ def documentation():
     #<li> is list
     #<ul> is unordered list
     return '''
-    <h1> Documentation of Endpoints: </h1>
-    <h2> Static Endpoints </h2>
+    <h1> Documentation of Endpoints </h1>
+    <h2> Static Endpoints: </h2>
     <ol>
         <li>
-            <p> /, method = POST </p>
-            <p> Base endpoint that is interactive and let's the user compute their name and favourite song. </p>
+            <p> Base endpoint that is interactive and let's the user compute their name and favourite song: </p>
+            <p> /form, method = POST </p>
         </li>
         <li>
+            <p> Documentation about the use of API: </p>
             <p> /docs, method = GET </p>
-            <p> Documentation about the use of API. </p>
         </li>
         <li>
+            <p> To show the whole list of songs: </p>
             <p> /data/get/catalogue, method = GET </p>
-            <p> To show the whole list of songs. </p>
         </li>
         <li>
+            <p> To show top 10 songs from the number of sales: </p>
             <p> /data/get/top10songs, method = GET </p>
-            <p> To show top 10 songs from the number of sales. </p>
         </li>
         <li>
+            <p> To show top 10 artists from the number of sales: </p>
             <p> /data/get/top10artists, method = GET </p>
-            <p> To show top 10 artists from the number of sales. </p>
         </li>
         <li>
-        <p> /data/get/top10genres, method = GET </p>
-            <p> To show top 10 genres from the number of sales. </p>
+            <p> To show top 10 genres from the number of sales: </p>
+            <p> /data/get/top10genres, method = GET </p>
         </li>
     </ol>
-    <h2> Dynamic Endpoint </h2>
+    <h2> Dynamic Endpoints: </h2>
     <ol>
-        <li>
-            <p> /data/get/sales , method = GET </p>
             <p> To show the whole data on sales </p>
-            <p> To filter: </p>
-            <ul style="list-style-type:disc;">
-                <li> city: to filter based on the city where the purchase of the songs are made, for example:
-                        /data/get/sales?city=Rome</li>
-                <li> country: to filter based on the country where the purchase of the songs are made, for example:
-                        /data/get/sales?country=Canada</li>
-                <li> genre: to filter based on the genre of the songs, for example:
-                        /data/get/sales?genre=Blues</li>
-                <li> artist: to filter based on the artists of the songs, for example:
-                        /data/get/sales?artist=U2</li>
-                <li> year: to filter based on the year when the purchase of the songs are made, for example:
-                        /data/get/sales?year=2014</li>
-                <li> col : to filter based on the columns you want, for example:
-                        /data/get/sales?col=[Song,Genre,Year,ArtistName,Album]</li>
-            </ul>
-            <p> To combine different combinations of the filters above, you can use &amp, for example:
-                    /data/get/sales?year=2011&genre=Reggae </p>
-        </li>
+            <p> /data/get/sales , method = GET </p>
+            <p> To filter based on your desired conditions: </p>
+            <p> /data/get/equal/data_name]/column]/[value], where [data_name] is sales. </p>
+            <p> For example: </p>
+            <ol style="list-style-type:disc;">
+                <li> <p> When you want to filter based on the country where the purchase of the songs are made, you can enter: </p>
+                <p> /data/get/equal/sales/Country/Germany </p> </li>
+                <li> When you want to filter based on the year of the purchase of the songs, you can enter: </p>
+                <p> /data/get/equal/sales/Year/2009 </p> </li>
+                <li> When you want to filter based on the artist, you can enter: </p>
+                <p> /data/get/equal/sales/ArtistName/U2 </p> </li>
+                <li> When you want to filter based on the genre, you can enter: </p>
+                <p> /data/get/equal/sales/Genre/Classical </p> </li> </ol>
+            And so on...
     </ol>
     '''
 
@@ -158,51 +161,20 @@ def get_genres():
     return (top10genres.to_json())
 
 @app.route('/data/get/sales', methods=['GET']) 
-def sales():
-    city = request.args.get('city')
-    country = request.args.get('country')
-    genre = request.args.get('genre')
-    artist = request.args.get('artist')
-    year = request.args.get('year')
-    col = request.args.get('col')
+def get_sales(): 
+    return (sales.to_json())
 
-    #tuple for name of column
-    column = []
-    #tuple for ==
-    equal = []
-    #tuple for condition specified in link
-    condition = []
-
-    if (city == None) & (country == None) & (genre == None) & (artist == None) & (year == None):
-        return (sales.to_json())
-    
-    if city:
-        column.append('City')
-        equal.append('==')
-        condition.append(city)
-
-    if country:
-        column.append('Country')
-        equal.append('==')
-        condition.append(country)
-
-    if genre:
-        column.append('Genre')
-        equal.append('==')
-        condition.append(genre)
-
-    if artist:
-        column.append('ArtistName')
-        equal.append('==')
-        condition.append(artist)
-    
-    if year:
-        column.append('Year')
-        equal.append('==')
-        condition.append(int(year))
-        #To ensure that the year that is typed in is integer
-
-
+@app.route('/data/get/equal/<data_name>/<column>/<value>', methods=['GET']) 
+def get_data_equal(data_name, column, value):
+    data_name = sales
+    #provide the name of data which is in this case, sales
+    mask = data_name[column] == value
+    #subset sales based on the column and then it must be equal to some value that is specified (Conditional subsetting)
+    #value must all be string or integer
+    #if integer, must put int(value)
+    data_name = data_name[mask]
+    #Conditional subsetting, save it in the original data
+    return (data_name.to_json())
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
