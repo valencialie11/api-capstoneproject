@@ -126,11 +126,15 @@ def documentation():
     </ol>
     <h2> Dynamic Endpoints: </h2>
     <ol>
+        <li>
             <p> To show the whole data on sales </p>
             <p> /data/get/sales , method = GET </p>
+        </li>
+        <li>
             <p> To filter based on your desired conditions: </p>
             <p> /data/get/equal/data_name]/column]/[value], where [data_name] is sales. </p>
             <p> For example: </p>
+        </li>
             <ol style="list-style-type:disc;">
                 <li> <p> When you want to filter based on the country where the purchase of the songs are made, you can enter: </p>
                 <p> /data/get/equal/sales/Country/Germany </p> </li>
@@ -141,6 +145,11 @@ def documentation():
                 <li> When you want to filter based on the genre, you can enter: </p>
                 <p> /data/get/equal/sales/Genre/Classical </p> </li> </ol>
             And so on...
+        <li>
+            <p> To filter using different combinations: </p>
+            <p> /data/get/equal/multiple/[data_name1]/[column1]/[value1]/[column2]/[value2], where [data_name1] is sales. <p>
+            <p> For example: </p>
+            <p> /data/get/equal/multiple/sales/Genre/Rock/Year/2009 to filter out rock songs that was bought in 2009. </p> </li>
     </ol>
     '''
 
@@ -175,6 +184,13 @@ def get_data_equal(data_name, column, value):
     data_name = data_name[mask]
     #Conditional subsetting, save it in the original data
     return (data_name.to_json())
+
+@app.route('/data/get/equal/multiple/<data_name1>/<column1>/<value1>/<column2>/<value2>', methods = ['GET'])
+def get_data_equal_multiple(data_name1, column1, column2, value1, value2):
+    data_name1 = sales
+    mask1 = (data_name1[column1] == value1) & (data_name1[column2] == value2)
+    data_name1 = data_name1[mask1]
+    return (data_name1.to_json())
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
