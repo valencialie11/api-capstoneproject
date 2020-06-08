@@ -147,9 +147,14 @@ def documentation():
             And so on...
         <li>
             <p> To filter using different combinations: </p>
-            <p> /data/get/equal/multiple/[data_name1]/[column1]/[value1]/[column2]/[value2], where [data_name1] is sales. <p>
+            <p> /data/get/equal/multiple/[data_name1]/[column1]/[value1]/[column2]/[value2], where [data_name1] is sales. </p>
             <p> For example: </p>
             <p> /data/get/equal/multiple/sales/Genre/Rock/Year/2009 to filter out rock songs that was bought in 2009. </p> </li>
+        <li> 
+            <p> To filter out based on columns: </p>
+            <p> /data/get/equal/columns/[data_name2]/[column3]/[column4]/[column5], where [data_name2] is sales. </p>
+            <p> For example: </p>
+            <p> /data/get/equal/columns/sales/ArtistName/MediaTypes/Genre to filter based on these 3 columns. </p>
     </ol>
     '''
 
@@ -191,6 +196,12 @@ def get_data_equal_multiple(data_name1, column1, column2, value1, value2):
     mask1 = (data_name1[column1] == value1) & (data_name1[column2] == value2)
     data_name1 = data_name1[mask1]
     return (data_name1.to_json())
+
+@app.route('/data/get/equal/columns/<data_name2>/<column3>/<column4>/<column5>', methods=['GET'])
+def get_data_equal_columns(data_name2, column3, column4, column5):
+    data_name2 = sales
+    data_name2 = data_name2.loc[:, [column3, column4, column5]]
+    return (data_name2.to_json())
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
