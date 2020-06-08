@@ -10,12 +10,14 @@ I really learnt a lot through this mini project, especially because I did this a
 - flask
 
 # Documentation of Endpoints
+To access these endpoints through a url:
+https://api-capstoneproject.herokuapp.com/ followed by the appropriate extensions written below
 
 ## Static Endpoints:
 
 1. Base endpoint that is interactive and let's the user compute their name and favourite song:
 
-/form, method = POST
+/, method = POST
 
 2. Documentation about the use of API:
 
