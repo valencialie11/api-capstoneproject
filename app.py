@@ -154,7 +154,7 @@ def documentation():
             <p> To filter out based on columns: </p>
             <p> /data/get/equal/columns/[data_name2]/[column3]/[column4]/[column5], where [data_name2] is sales. </p>
             <p> For example: 
-                /data/get/equal/columns/sales/ArtistName/MediaTypes/Genre to filter based on these 3 columns. </p>
+                /data/get/equal/columns/sales/ArtistName/MediaTypes/Genre to filter based on these 3 columns. </p> </li>
     </ol>
     '''
 
