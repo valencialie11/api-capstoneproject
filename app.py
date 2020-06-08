@@ -148,7 +148,7 @@ def documentation():
         <li>
             <p> To filter using different combinations: </p>
             <p> /data/get/equal/multiple/[data_name1]/[column1]/[value1]/[column2]/[value2], where [data_name1] is sales. </p>
-            <p> For example:
+            <p> For example:    
                 /data/get/equal/multiple/sales/Genre/Rock/Year/2009 to filter out rock songs that was bought in 2009. </p> </li>
         <li> 
             <p> To filter out based on columns: </p>
