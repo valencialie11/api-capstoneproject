@@ -69,7 +69,7 @@ songs.TrackId = songs.TrackId.apply(str)
 sales = songs.copy()
 
 
-@app.route('/form', methods=['GET', 'POST']) #allow both GET and POST requests
+@app.route('/', methods=['GET', 'POST']) #allow both GET and POST requests
 def form():
     if request.method == 'POST':  # Hanya akan tampil setelah melakukan POST (submit) form
         key1 = 'name'
@@ -101,7 +101,7 @@ def documentation():
     <ol>
         <li>
             <p> Base endpoint that is interactive and let's the user compute their name and favourite song: </p>
-            <p> /form, method = POST </p>
+            <p> /, method = POST </p>
         </li>
         <li>
             <p> Documentation about the use of API: </p>
