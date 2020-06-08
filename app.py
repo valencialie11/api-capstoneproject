@@ -148,13 +148,13 @@ def documentation():
         <li>
             <p> To filter using different combinations: </p>
             <p> /data/get/equal/multiple/[data_name1]/[column1]/[value1]/[column2]/[value2], where [data_name1] is sales. </p>
-            <p> For example: </p>
-            <p> /data/get/equal/multiple/sales/Genre/Rock/Year/2009 to filter out rock songs that was bought in 2009. </p> </li>
+            <p> For example:
+                /data/get/equal/multiple/sales/Genre/Rock/Year/2009 to filter out rock songs that was bought in 2009. </p> </li>
         <li> 
             <p> To filter out based on columns: </p>
             <p> /data/get/equal/columns/[data_name2]/[column3]/[column4]/[column5], where [data_name2] is sales. </p>
-            <p> For example: </p>
-            <p> /data/get/equal/columns/sales/ArtistName/MediaTypes/Genre to filter based on these 3 columns. </p>
+            <p> For example: 
+                /data/get/equal/columns/sales/ArtistName/MediaTypes/Genre to filter based on these 3 columns. </p>
     </ol>
     '''
 
